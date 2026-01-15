@@ -8,7 +8,6 @@ const PRICES = {
 };
 
 module.exports = async (req, res) => {
-  // CORS for BlinkWebHost
   res.setHeader("Access-Control-Allow-Origin", "https://fpsecondpage.adelinfp.blog");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -17,16 +16,12 @@ module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    const { email, product, fp_tid } = req.body || {};
-
-    if (!email || !product) {
-      return res.status(400).json({ error: "Missing email or product" });
-    }
+    const tid = req.body.fp_tid; 
+    const email = req.body.email;
+    const product = req.body.product;
 
     const price = PRICES[product];
-    if (!price) {
-      return res.status(400).json({ error: "Invalid product" });
-    }
+    if (!price) return res.status(400).json({ error: "Invalid product" });
 
     const baseUrl = process.env.BASE_URL || "https://fpsecondpage.adelinfp.blog";
 
@@ -34,10 +29,10 @@ module.exports = async (req, res) => {
       mode: "payment",
       line_items: [{ price, quantity: 1 }],
       customer_email: email,
-      success_url: `${baseUrl}/success.html`,
-      cancel_url: `${baseUrl}/cancel.html`,
+      success_url: baseUrl + "/success.html",
+      cancel_url: baseUrl + "/cancel.html",
       metadata: {
-        fp_tid: fp_tid || ""
+        fp_tid: tid 
       }
     });
 
